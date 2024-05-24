@@ -20,10 +20,8 @@ import (
 //
 // It is a shortcut for Decoder.Decode() with the default options.
 func Unmarshal(data []byte, v interface{}) error {
-	p := unstable.Parser{}
-	p.Reset(data)
-	d := decoder{p: &p}
-
+	d := decoder{}
+	d.p.Reset(data)
 	return d.FromParser(v)
 }
 
@@ -121,22 +119,20 @@ func (d *Decoder) Decode(v interface{}) error {
 		return fmt.Errorf("toml: %w", err)
 	}
 
-	p := unstable.Parser{}
-	p.Reset(b)
 	dec := decoder{
-		p: &p,
 		strict: strict{
 			Enabled: d.strict,
 		},
 		unmarshalerInterface: d.unmarshalerInterface,
 	}
+	dec.p.Reset(b)
 
 	return dec.FromParser(v)
 }
 
 type decoder struct {
 	// Which parser instance in use for this decoding session.
-	p *unstable.Parser
+	p unstable.Parser
 
 	// Flag indicating that the current expression is stashed.
 	// If set to true, calling nextExpr will not actually pull a new expression
